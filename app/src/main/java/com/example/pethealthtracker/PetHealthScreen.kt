@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Column
 
 @Composable
 fun PetHealthScreen() {
-    // 1. Height and Weight need to hold text input string data, not floats directly!
+
     var height by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
 
