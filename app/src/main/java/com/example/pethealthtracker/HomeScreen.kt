@@ -26,7 +26,7 @@ import androidx.navigation.NavController
 @Composable
 fun HomeScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
-        // Top Right: Settings
+
         IconButton(
             onClick = { /* TODO: navController.navigate("settings") */ },
             modifier = Modifier
