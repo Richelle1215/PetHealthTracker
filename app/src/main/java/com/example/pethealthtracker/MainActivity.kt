@@ -16,8 +16,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PetHealthTrackerTheme(dynamicColor = false) {
-                // >>> DITO INILAGAY ANG STEP C <<<
-                // Ang Surface na ito ang magbibigay ng background color sa buong app mo
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background // Kulay galing sa background ng image_fc5c53.png
