@@ -17,7 +17,7 @@ fun PetHealthScreen() {
     var height by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
 
-    // 2. BMI is a number, so we explicitly type it as a Float
+
     var bmi by remember { mutableStateOf<Float>(0f) }
 
     Column {
