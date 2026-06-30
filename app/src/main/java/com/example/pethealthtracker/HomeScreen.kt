@@ -42,7 +42,7 @@ fun HomeScreen(navController: NavController) {
             )
         }
 
-        // Top Left: Quick Actions (Games and Closet)
+        // Top Left: Quick Actions Games and Closet
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
