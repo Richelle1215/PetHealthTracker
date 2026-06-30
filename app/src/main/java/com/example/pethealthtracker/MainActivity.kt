@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background // Kulay galing sa background ng image_fc5c53.png
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     AppNavigation()
                 }
