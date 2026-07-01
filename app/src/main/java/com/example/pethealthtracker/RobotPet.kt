@@ -70,7 +70,7 @@ fun RobotPet(modifier: Modifier = Modifier) {
                     onHorizontalDrag = { change, dragAmount ->
                         change.consume()
                         scope.launch {
-                            if (dragAmount > 10) { // Swipe Right -> Dance
+                            if (dragAmount > 10) { // Swipe Right -> sayaw
                                 isSmiling = true
                                 launch {
                                     danceRotation.animateTo(10f, tween(150))
