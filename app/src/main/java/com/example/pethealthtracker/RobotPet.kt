@@ -65,7 +65,7 @@ fun RobotPet(modifier: Modifier = Modifier) {
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onDragEnd = {
-                        // Logic for detecting swipe direction could be added here if needed
+                        // Logic for detecting swipe direction
                     },
                     onHorizontalDrag = { change, dragAmount ->
                         change.consume()
