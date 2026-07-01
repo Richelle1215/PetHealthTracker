@@ -82,7 +82,7 @@ fun RobotPet(modifier: Modifier = Modifier) {
                                     danceX.animateTo(-20f, tween(300))
                                     danceX.animateTo(0f, tween(150))
                                 }
-                            } else if (dragAmount < -10) { // Swipe Left -> Song
+                            } else if (dragAmount < -10) { // Swipe Left -> kanta
                                 isSinging = true
                                 isSmiling = true
                                 songProgress.snapTo(0f)
