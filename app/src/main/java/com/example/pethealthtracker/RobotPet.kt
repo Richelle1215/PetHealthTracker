@@ -146,7 +146,7 @@ fun RobotPet(modifier: Modifier = Modifier) {
                 cornerRadius = CornerRadius(80f, 80f)
             )
 
-            // 4. Silver Face Frame
+            // 4. Silver Face
             drawRoundRect(
                 color = frameSilver,
                 topLeft = Offset(w * 0.24f, h * 0.19f),
