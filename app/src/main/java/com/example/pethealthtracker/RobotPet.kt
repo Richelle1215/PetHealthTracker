@@ -48,7 +48,7 @@ fun RobotPet(modifier: Modifier = Modifier) {
         label = "blink"
     )
 
-    // Subtle bobbing animation
+
     val bobbingY by infiniteTransition.animateFloat(
         initialValue = -5f,
         targetValue = 5f,
