@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, viewModel: PetViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
 
         IconButton(
@@ -63,7 +63,7 @@ fun HomeScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             IconButton(
-                onClick = { /* TODO: navController.navigate("closet") */ },
+                onClick = { navController.navigate("closet") },
                 modifier = Modifier.size(56.dp)
             ) {
                 Icon(
@@ -83,7 +83,15 @@ fun HomeScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
-            RobotPet(modifier = Modifier.size(250.dp))
+            RobotPet(
+                modifier = Modifier.size(250.dp),
+                bodyColor = viewModel.petColor,
+                eyeColor = viewModel.eyeColor,
+                headphoneColor = viewModel.headphoneColor,
+                hasSunglasses = viewModel.hasSunglasses,
+                hasClothes = viewModel.hasClothes,
+                clothesColor = viewModel.clothesColor
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 

@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme // Idinagdag para makuha ang kul
 import androidx.compose.material3.Surface // Idinagdag para sa background surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier // Idinagdag para sa sizing
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.pethealthtracker.ui.theme.PetHealthTrackerTheme
 
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    val petViewModel: PetViewModel = viewModel()
+                    AppNavigation(petViewModel)
                 }
             }
         }
@@ -29,12 +31,13 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(petViewModel: PetViewModel) {
     val navController = rememberNavController()
 
     NavHost(navController, startDestination = "home") {
-        composable("home") { HomeScreen(navController) }
+        composable("home") { HomeScreen(navController, petViewModel) }
         composable("pet") { PetHealthScreen() }
         composable("games") { GamesScreen() }
+        composable("closet") { ClosetScreen(navController, petViewModel) }
     }
 }

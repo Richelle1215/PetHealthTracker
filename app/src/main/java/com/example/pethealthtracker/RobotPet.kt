@@ -21,7 +21,15 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-fun RobotPet(modifier: Modifier = Modifier) {
+fun RobotPet(
+    modifier: Modifier = Modifier,
+    bodyColor: Color = Color.White,
+    eyeColor: Color = Color(0xFF00E5FF),
+    headphoneColor: Color = Color(0xFF3F51B5),
+    hasSunglasses: Boolean = false,
+    hasClothes: Boolean = false,
+    clothesColor: Color = Color.Red
+) {
     val infiniteTransition = rememberInfiniteTransition(label = "robotTransition")
     val scope = rememberCoroutineScope()
     val jumpOffset = remember { Animatable(0f) }
@@ -48,7 +56,6 @@ fun RobotPet(modifier: Modifier = Modifier) {
         label = "blink"
     )
 
-
     val bobbingY by infiniteTransition.animateFloat(
         initialValue = -5f,
         targetValue = 5f,
@@ -64,9 +71,6 @@ fun RobotPet(modifier: Modifier = Modifier) {
             .size(250.dp)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
-                    onDragEnd = {
-                        // Logic for detecting swipe direction
-                    },
                     onHorizontalDrag = { change, dragAmount ->
                         change.consume()
                         scope.launch {
@@ -107,11 +111,9 @@ fun RobotPet(modifier: Modifier = Modifier) {
         val w = size.width
         val h = size.height
         
-        val bodyWhite = Color.White
+        val bodyMainColor = bodyColor
         val frameSilver = Color(0xFFE0E0E0)
         val screenBlack = Color(0xFF0A0A0A)
-        val tealEyes = Color(0xFF00E5FF)
-        val blueHeadphones = Color(0xFF3F51B5)
         val footGrey = Color(0xFF424242)
 
         val totalYOffset = bobbingY + jumpOffset.value
@@ -135,18 +137,28 @@ fun RobotPet(modifier: Modifier = Modifier) {
             rotate(degrees = danceRotation.value, pivot = Offset(w * 0.5f, h * 0.5f))
         }) {
             // 2. Legs
-            drawRect(color = bodyWhite, topLeft = Offset(w * 0.32f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
-            drawRect(color = bodyWhite, topLeft = Offset(w * 0.6f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
+            drawRect(color = bodyMainColor, topLeft = Offset(w * 0.32f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
+            drawRect(color = bodyMainColor, topLeft = Offset(w * 0.6f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
 
             // 3. Main Body/Head (Squircle)
             drawRoundRect(
-                color = bodyWhite,
+                color = bodyMainColor,
                 topLeft = Offset(w * 0.2f, h * 0.15f),
                 size = Size(w * 0.6f, h * 0.55f),
                 cornerRadius = CornerRadius(80f, 80f)
             )
 
-            // 4. Silver Face
+            // 4. Clothes (if any)
+            if (hasClothes) {
+                drawRoundRect(
+                    color = clothesColor,
+                    topLeft = Offset(w * 0.2f, h * 0.45f),
+                    size = Size(w * 0.6f, h * 0.25f),
+                    cornerRadius = CornerRadius(20f, 20f)
+                )
+            }
+
+            // 5. Silver Face
             drawRoundRect(
                 color = frameSilver,
                 topLeft = Offset(w * 0.24f, h * 0.19f),
@@ -154,7 +166,7 @@ fun RobotPet(modifier: Modifier = Modifier) {
                 cornerRadius = CornerRadius(70f, 70f)
             )
 
-            // 5. Screen
+            // 6. Screen
             drawRoundRect(
                 color = screenBlack,
                 topLeft = Offset(w * 0.26f, h * 0.21f),
@@ -162,24 +174,33 @@ fun RobotPet(modifier: Modifier = Modifier) {
                 cornerRadius = CornerRadius(60f, 60f)
             )
 
-            // 6. Eyes (with blinking)
+            // 7. Eyes (with blinking)
             val eyeHeight = 0.12f * h * blinkScale
             val eyeTopOffset = (0.12f * h - eyeHeight) / 2
             
-            drawRoundRect(
-                color = tealEyes,
-                topLeft = Offset(w * 0.33f, h * 0.32f + eyeTopOffset),
-                size = Size(w * 0.12f, eyeHeight),
-                cornerRadius = CornerRadius(15f, 15f)
-            )
-            drawRoundRect(
-                color = tealEyes,
-                topLeft = Offset(w * 0.55f, h * 0.32f + eyeTopOffset),
-                size = Size(w * 0.12f, eyeHeight),
-                cornerRadius = CornerRadius(15f, 15f)
-            )
+            if (hasSunglasses) {
+                // Sunglasses
+                drawRect(
+                    color = Color.Black,
+                    topLeft = Offset(w * 0.28f, h * 0.3f),
+                    size = Size(w * 0.44f, h * 0.1f)
+                )
+            } else {
+                drawRoundRect(
+                    color = eyeColor,
+                    topLeft = Offset(w * 0.33f, h * 0.32f + eyeTopOffset),
+                    size = Size(w * 0.12f, eyeHeight),
+                    cornerRadius = CornerRadius(15f, 15f)
+                )
+                drawRoundRect(
+                    color = eyeColor,
+                    topLeft = Offset(w * 0.55f, h * 0.32f + eyeTopOffset),
+                    size = Size(w * 0.12f, eyeHeight),
+                    cornerRadius = CornerRadius(15f, 15f)
+                )
+            }
 
-            // 7. Lips (Smile or Sad)
+            // 8. Lips (Smile or Sad)
             val mouthPath = Path().apply {
                 val startX = w * 0.42f
                 val endX = w * 0.58f
@@ -195,30 +216,30 @@ fun RobotPet(modifier: Modifier = Modifier) {
             }
             drawPath(
                 path = mouthPath,
-                color = tealEyes,
+                color = eyeColor,
                 style = Stroke(width = 6f, cap = StrokeCap.Round)
             )
 
-            // 8. Song Visualization (Musical notes)
+            // 9. Song Visualization (Musical notes)
             if (isSinging) {
                 val noteOffset = songProgress.value
                 drawCircle(
-                    color = tealEyes,
+                    color = eyeColor,
                     center = Offset(w * 0.7f + noteOffset * 20f, h * 0.2f - noteOffset * 50f),
                     radius = 8f * (1f - noteOffset),
                     alpha = 1f - noteOffset
                 )
                 drawCircle(
-                    color = tealEyes,
+                    color = eyeColor,
                     center = Offset(w * 0.8f + noteOffset * 10f, h * 0.3f - noteOffset * 40f),
                     radius = 6f * (1f - noteOffset),
                     alpha = 1f - noteOffset
                 )
             }
 
-            // 9. Headphones
+            // 10. Headphones
             drawArc(
-                color = blueHeadphones,
+                color = headphoneColor,
                 startAngle = 180f,
                 sweepAngle = 180f,
                 useCenter = false,
@@ -227,13 +248,13 @@ fun RobotPet(modifier: Modifier = Modifier) {
                 style = Stroke(width = 12f)
             )
             drawRoundRect(
-                color = blueHeadphones,
+                color = headphoneColor,
                 topLeft = Offset(w * 0.15f, h * 0.3f),
                 size = Size(w * 0.1f, h * 0.2f),
                 cornerRadius = CornerRadius(30f, 30f)
             )
             drawRoundRect(
-                color = blueHeadphones,
+                color = headphoneColor,
                 topLeft = Offset(w * 0.75f, h * 0.3f),
                 size = Size(w * 0.1f, h * 0.2f),
                 cornerRadius = CornerRadius(30f, 30f)
@@ -241,4 +262,3 @@ fun RobotPet(modifier: Modifier = Modifier) {
         }
     }
 }
-
