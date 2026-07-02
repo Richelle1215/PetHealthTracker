@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 fun RobotPet(
     modifier: Modifier = Modifier,
     bodyColor: Color = Color.White,
-    eyeColor: Color = Color(0xFF00E5FF),
+    eyeColor: Color = Color(0xFFF48FB1), // Using this for accents (pink parts)
     headphoneColor: Color = Color(0xFF3F51B5),
     hasSunglasses: Boolean = false,
     hasClothes: Boolean = false,
@@ -54,6 +54,17 @@ fun RobotPet(
             }
         ),
         label = "blink"
+    )
+
+    // Arm swaying animation
+    val armRotation by infiniteTransition.animateFloat(
+        initialValue = -8f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "arms"
     )
 
     val bobbingY by infiniteTransition.animateFloat(
@@ -111,153 +122,133 @@ fun RobotPet(
         val w = size.width
         val h = size.height
         
-        val bodyMainColor = bodyColor
-        val frameSilver = Color(0xFFE0E0E0)
-        val screenBlack = Color(0xFF0A0A0A)
-        val footGrey = Color(0xFF424242)
+        val mainWhite = bodyColor
+        val accentColor = eyeColor // Using this for the pink parts
+        val screenBlack = Color(0xFF121212)
+        val facePink = Color(0xFFFFD1E1)
 
         val totalYOffset = bobbingY + jumpOffset.value
-
-        // 1. Feet
-        drawRoundRect(
-            color = footGrey,
-            topLeft = Offset(w * 0.25f, h * 0.75f + jumpOffset.value * 0.2f),
-            size = Size(w * 0.22f, h * 0.18f),
-            cornerRadius = CornerRadius(20f, 20f)
-        )
-        drawRoundRect(
-            color = footGrey,
-            topLeft = Offset(w * 0.53f, h * 0.75f + jumpOffset.value * 0.2f),
-            size = Size(w * 0.22f, h * 0.18f),
-            cornerRadius = CornerRadius(20f, 20f)
-        )
 
         withTransform({
             translate(top = totalYOffset, left = danceX.value)
             rotate(degrees = danceRotation.value, pivot = Offset(w * 0.5f, h * 0.5f))
         }) {
-            // 2. Legs
-            drawRect(color = bodyMainColor, topLeft = Offset(w * 0.32f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
-            drawRect(color = bodyMainColor, topLeft = Offset(w * 0.6f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
-
-            // 3. Main Body/Head (Squircle)
-            drawRoundRect(
-                color = bodyMainColor,
-                topLeft = Offset(w * 0.2f, h * 0.15f),
-                size = Size(w * 0.6f, h * 0.55f),
-                cornerRadius = CornerRadius(80f, 80f)
+            // 1. Body (Egg shape)
+            drawOval(
+                color = mainWhite,
+                topLeft = Offset(w * 0.25f, h * 0.45f),
+                size = Size(w * 0.5f, h * 0.5f)
             )
 
-            // 4. Clothes (if any)
+            // 2. Accent Collar/Bib
+            val collarPath = Path().apply {
+                moveTo(w * 0.35f, h * 0.45f)
+                quadraticTo(w * 0.5f, h * 0.65f, w * 0.65f, h * 0.45f)
+                close()
+            }
+            drawPath(path = collarPath, color = accentColor)
+
+            // 3. Clothes
             if (hasClothes) {
-                drawRoundRect(
+                drawOval(
                     color = clothesColor,
-                    topLeft = Offset(w * 0.2f, h * 0.45f),
-                    size = Size(w * 0.6f, h * 0.25f),
-                    cornerRadius = CornerRadius(20f, 20f)
+                    topLeft = Offset(w * 0.25f, h * 0.65f),
+                    size = Size(w * 0.5f, h * 0.3f)
                 )
             }
 
-            // 5. Silver Face
-            drawRoundRect(
-                color = frameSilver,
-                topLeft = Offset(w * 0.24f, h * 0.19f),
-                size = Size(w * 0.52f, h * 0.47f),
-                cornerRadius = CornerRadius(70f, 70f)
+            // 4. Curved Arms (Left)
+            withTransform({
+                rotate(degrees = armRotation, pivot = Offset(w * 0.35f, h * 0.55f))
+            }) {
+                val leftArmPath = Path().apply {
+                    moveTo(w * 0.35f, h * 0.55f)
+                    cubicTo(w * 0.15f, h * 0.55f, w * 0.1f, h * 0.45f, w * 0.18f, h * 0.35f)
+                }
+                drawPath(path = leftArmPath, color = mainWhite, style = Stroke(width = w * 0.12f, cap = StrokeCap.Round))
+                drawPath(path = leftArmPath, color = accentColor, style = Stroke(width = w * 0.06f, cap = StrokeCap.Round))
+            }
+
+            // 5. Curved Arms (Right)
+            withTransform({
+                rotate(degrees = -armRotation, pivot = Offset(w * 0.65f, h * 0.55f))
+            }) {
+                val rightArmPath = Path().apply {
+                    moveTo(w * 0.65f, h * 0.55f)
+                    cubicTo(w * 0.85f, h * 0.55f, w * 0.9f, h * 0.45f, w * 0.82f, h * 0.35f)
+                }
+                drawPath(path = rightArmPath, color = mainWhite, style = Stroke(width = w * 0.12f, cap = StrokeCap.Round))
+                drawPath(path = rightArmPath, color = accentColor, style = Stroke(width = w * 0.06f, cap = StrokeCap.Round))
+            }
+
+            // 6. Head
+            drawOval(
+                color = mainWhite,
+                topLeft = Offset(w * 0.15f, h * 0.1f),
+                size = Size(w * 0.7f, h * 0.42f)
             )
 
-            // 6. Screen
+            // 7. Face Screen
             drawRoundRect(
                 color = screenBlack,
-                topLeft = Offset(w * 0.26f, h * 0.21f),
-                size = Size(w * 0.48f, h * 0.43f),
+                topLeft = Offset(w * 0.28f, h * 0.18f),
+                size = Size(w * 0.44f, h * 0.26f),
                 cornerRadius = CornerRadius(60f, 60f)
             )
 
-            // 7. Eyes (with blinking)
-            val eyeHeight = 0.12f * h * blinkScale
-            val eyeTopOffset = (0.12f * h - eyeHeight) / 2
-            
+            // 8. Eyes (with blinking)
+            val eyeHeight = 0.1f * h * blinkScale
+            val eyeTopOffset = (0.1f * h - eyeHeight) / 2
+
             if (hasSunglasses) {
-                // Sunglasses
-                drawRect(
-                    color = Color.Black,
-                    topLeft = Offset(w * 0.28f, h * 0.3f),
-                    size = Size(w * 0.44f, h * 0.1f)
-                )
+                drawRect(color = Color.Black, topLeft = Offset(w * 0.28f, h * 0.23f), size = Size(w * 0.44f, h * 0.08f))
             } else {
-                drawRoundRect(
-                    color = eyeColor,
-                    topLeft = Offset(w * 0.33f, h * 0.32f + eyeTopOffset),
-                    size = Size(w * 0.12f, eyeHeight),
-                    cornerRadius = CornerRadius(15f, 15f)
+                drawArc(
+                    color = facePink,
+                    startAngle = 180f,
+                    sweepAngle = 180f,
+                    useCenter = false,
+                    topLeft = Offset(w * 0.35f, h * 0.23f + eyeTopOffset),
+                    size = Size(w * 0.12f, eyeHeight)
                 )
-                drawRoundRect(
-                    color = eyeColor,
-                    topLeft = Offset(w * 0.55f, h * 0.32f + eyeTopOffset),
-                    size = Size(w * 0.12f, eyeHeight),
-                    cornerRadius = CornerRadius(15f, 15f)
+                drawArc(
+                    color = facePink,
+                    startAngle = 180f,
+                    sweepAngle = 180f,
+                    useCenter = false,
+                    topLeft = Offset(w * 0.53f, h * 0.23f + eyeTopOffset),
+                    size = Size(w * 0.12f, eyeHeight)
                 )
             }
-
-            // 8. Lips (Smile or Sad)
+            
+            // 9. Mouth (Smile/Sad)
             val mouthPath = Path().apply {
-                val startX = w * 0.42f
-                val endX = w * 0.58f
                 val midX = w * 0.5f
-                val mouthY = h * 0.52f
-                
-                moveTo(startX, mouthY)
+                val mouthY = h * 0.35f
+                moveTo(w * 0.45f, mouthY)
                 if (isSmiling) {
-                    quadraticTo(midX, mouthY + h * 0.04f, endX, mouthY)
+                    quadraticTo(midX, mouthY + h * 0.03f, w * 0.55f, mouthY)
                 } else {
-                    quadraticTo(midX, mouthY - h * 0.04f, endX, mouthY)
+                    quadraticTo(midX, mouthY - h * 0.03f, w * 0.55f, mouthY)
                 }
             }
-            drawPath(
-                path = mouthPath,
-                color = eyeColor,
-                style = Stroke(width = 6f, cap = StrokeCap.Round)
-            )
+            drawPath(path = mouthPath, color = facePink, style = Stroke(width = 6f, cap = StrokeCap.Round))
 
-            // 9. Song Visualization (Musical notes)
+            // 10. Singing notes
             if (isSinging) {
                 val noteOffset = songProgress.value
-                drawCircle(
-                    color = eyeColor,
-                    center = Offset(w * 0.7f + noteOffset * 20f, h * 0.2f - noteOffset * 50f),
-                    radius = 8f * (1f - noteOffset),
-                    alpha = 1f - noteOffset
-                )
-                drawCircle(
-                    color = eyeColor,
-                    center = Offset(w * 0.8f + noteOffset * 10f, h * 0.3f - noteOffset * 40f),
-                    radius = 6f * (1f - noteOffset),
-                    alpha = 1f - noteOffset
-                )
+                drawCircle(color = accentColor, center = Offset(w * 0.75f + noteOffset * 20f, h * 0.15f - noteOffset * 50f), radius = 8f * (1f - noteOffset), alpha = 1f - noteOffset)
             }
 
-            // 10. Headphones
+            // 11. Headphones (Band on head)
             drawArc(
                 color = headphoneColor,
                 startAngle = 180f,
                 sweepAngle = 180f,
                 useCenter = false,
-                topLeft = Offset(w * 0.2f, h * 0.1f),
-                size = Size(w * 0.6f, h * 0.2f),
-                style = Stroke(width = 12f)
-            )
-            drawRoundRect(
-                color = headphoneColor,
-                topLeft = Offset(w * 0.15f, h * 0.3f),
-                size = Size(w * 0.1f, h * 0.2f),
-                cornerRadius = CornerRadius(30f, 30f)
-            )
-            drawRoundRect(
-                color = headphoneColor,
-                topLeft = Offset(w * 0.75f, h * 0.3f),
-                size = Size(w * 0.1f, h * 0.2f),
-                cornerRadius = CornerRadius(30f, 30f)
+                topLeft = Offset(w * 0.15f, h * 0.05f),
+                size = Size(w * 0.7f, h * 0.2f),
+                style = Stroke(width = 10f)
             )
         }
     }
