@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 
 class PetViewModel : ViewModel() {
-    var petType by mutableStateOf(0) // 0: Emo, 1: Eilik
+    var petType by mutableStateOf(0) // 0: Emo, 1: Eilik, 2: CuteBot
     var petColor by mutableStateOf(Color.White)
     var eyeColor by mutableStateOf(Color(0xFF00E5FF)) // Default Teal
     var hasSunglasses by mutableStateOf(false)
