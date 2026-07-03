@@ -5,32 +5,46 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.navigation.NavController
-import kotlin.math.roundToInt
+import kotlin.math.absoluteValue
 
 @Composable
 fun ClosetScreen(navController: NavController, viewModel: PetViewModel) {
+    val pagerState = rememberPagerState(pageCount = { 3 }, initialPage = viewModel.petType)
+
+    // Sync ViewModel when pager moves
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.petType = pagerState.currentPage
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF0D0B1F)) // Deep dark background
-            .padding(16.dp)
+            .padding(top = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
             }
@@ -44,69 +58,79 @@ fun ClosetScreen(navController: NavController, viewModel: PetViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Pet Preview
-        Box(
+        // Swipeable Pet Carousel
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            RobotPet(
-                petType = viewModel.petType,
-                bodyColor = viewModel.petColor,
-                eyeColor = viewModel.eyeColor,
-                headphoneColor = viewModel.headphoneColor,
-                hasSunglasses = viewModel.hasSunglasses,
-                hasClothes = viewModel.hasClothes,
-                clothesColor = viewModel.clothesColor
-            )
+                .height(300.dp),
+            contentPadding = PaddingValues(horizontal = 80.dp)
+        ) { page ->
+            Box(
+                modifier = Modifier
+                    .graphicsLayer {
+                        val pageOffset = (
+                                (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+                                ).absoluteValue
+                        val scale = lerp(
+                            start = 0.7f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = lerp(
+                            start = 0.4f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                RobotPet(
+                    modifier = Modifier.size(250.dp),
+                    petType = page,
+                    bodyColor = viewModel.petColor,
+                    eyeColor = viewModel.eyeColor,
+                    headphoneColor = viewModel.headphoneColor,
+                    hasSunglasses = viewModel.hasSunglasses,
+                    hasClothes = viewModel.hasClothes,
+                    clothesColor = viewModel.clothesColor
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Pet Type Slider
-        Text("Pet Type", color = Color.White, fontWeight = FontWeight.Bold)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Emo", color = if(viewModel.petType == 0) Color.White else Color.Gray, fontSize = 12.sp)
-            Slider(
-                value = viewModel.petType.toFloat(),
-                onValueChange = { viewModel.petType = it.roundToInt() },
-                valueRange = 0f..2f,
-                steps = 1,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
-            )
-            Text("CuteBot", color = if(viewModel.petType == 2) Color.White else Color.Gray, fontSize = 12.sp)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Customization Options
-        Text("Body Color", color = Color.White, fontWeight = FontWeight.Bold)
-        ColorPicker(selectedColor = viewModel.petColor) { viewModel.petColor = it }
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Text("Body Color", color = Color.White, fontWeight = FontWeight.Bold)
+            ColorPicker(selectedColor = viewModel.petColor) { viewModel.petColor = it }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Accent/Eye Color", color = Color.White, fontWeight = FontWeight.Bold)
-        ColorPicker(selectedColor = viewModel.eyeColor) { viewModel.eyeColor = it }
+            Text("Accent/Eye Color", color = Color.White, fontWeight = FontWeight.Bold)
+            ColorPicker(selectedColor = viewModel.eyeColor) { viewModel.eyeColor = it }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Headphone Color", color = Color.White, fontWeight = FontWeight.Bold)
-        ColorPicker(selectedColor = viewModel.headphoneColor) { viewModel.headphoneColor = it }
+            Text("Headphone Color", color = Color.White, fontWeight = FontWeight.Bold)
+            ColorPicker(selectedColor = viewModel.headphoneColor) { viewModel.headphoneColor = it }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Sunglasses", color = Color.White, modifier = Modifier.weight(1f))
-            Switch(checked = viewModel.hasSunglasses, onCheckedChange = { viewModel.hasSunglasses = it })
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Sunglasses", color = Color.White, modifier = Modifier.weight(1f))
+                Switch(checked = viewModel.hasSunglasses, onCheckedChange = { viewModel.hasSunglasses = it })
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Clothes", color = Color.White, modifier = Modifier.weight(1f))
+                Switch(checked = viewModel.hasClothes, onCheckedChange = { viewModel.hasClothes = it })
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
         }
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Clothes", color = Color.White, modifier = Modifier.weight(1f))
-            Switch(checked = viewModel.hasClothes, onCheckedChange = { viewModel.hasClothes = it })
-        }
-        
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
