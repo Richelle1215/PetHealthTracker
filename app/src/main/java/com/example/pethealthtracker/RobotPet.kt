@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RobotPet(
     modifier: Modifier = Modifier,
-    petType: Int = 0, // 0: Emo, 1: Eilik
+    petType: Int = 0, // 0: Emo, 1: Eilik, 2: CuteBot
     bodyColor: Color = Color.White,
     eyeColor: Color = Color(0xFF00E5FF),
     headphoneColor: Color = Color(0xFF3F51B5),
@@ -57,7 +57,7 @@ fun RobotPet(
         label = "blink"
     )
 
-    // Arm swaying animation (For Eilik)
+    // Arm swaying animation (For Eilik/CuteBot)
     val armRotation by infiniteTransition.animateFloat(
         initialValue = -8f,
         targetValue = 8f,
@@ -125,7 +125,7 @@ fun RobotPet(
         
         val mainColor = bodyColor
         val screenBlack = Color(0xFF0A0A0A)
-        val faceAccent = if (petType == 0) eyeColor else Color(0xFFFFD1E1) // Emo uses custom eye color, Eilik uses pinkish face details
+        val faceAccent = if (petType == 0) eyeColor else Color(0xFFFFD1E1) // Emo uses custom eye color, Eilik/CuteBot uses pinkish
 
         val totalYOffset = bobbingY + jumpOffset.value
 
@@ -133,165 +133,152 @@ fun RobotPet(
             translate(top = totalYOffset, left = danceX.value)
             rotate(degrees = danceRotation.value, pivot = Offset(w * 0.5f, h * 0.5f))
         }) {
-            if (petType == 0) {
-                // PET TYPE 0: EMO STYLE
-                // Feet (Stay on ground or move with jump)
-                drawRoundRect(
-                    color = Color(0xFF424242),
-                    topLeft = Offset(w * 0.25f, h * 0.75f - totalYOffset + jumpOffset.value * 0.2f),
-                    size = Size(w * 0.22f, h * 0.18f),
-                    cornerRadius = CornerRadius(20f, 20f)
-                )
-                drawRoundRect(
-                    color = Color(0xFF424242),
-                    topLeft = Offset(w * 0.53f, h * 0.75f - totalYOffset + jumpOffset.value * 0.2f),
-                    size = Size(w * 0.22f, h * 0.18f),
-                    cornerRadius = CornerRadius(20f, 20f)
-                )
-
-                // Legs
-                drawRect(color = mainColor, topLeft = Offset(w * 0.32f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
-                drawRect(color = mainColor, topLeft = Offset(w * 0.6f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
-
-                // Body (Squircle)
-                drawRoundRect(
-                    color = mainColor,
-                    topLeft = Offset(w * 0.2f, h * 0.15f),
-                    size = Size(w * 0.6f, h * 0.55f),
-                    cornerRadius = CornerRadius(80f, 80f)
-                )
-
-                // Face Frame (Silver)
-                drawRoundRect(
-                    color = Color(0xFFE0E0E0),
-                    topLeft = Offset(w * 0.24f, h * 0.19f),
-                    size = Size(w * 0.52f, h * 0.47f),
-                    cornerRadius = CornerRadius(70f, 70f)
-                )
-
-                // Screen
-                drawRoundRect(
-                    color = screenBlack,
-                    topLeft = Offset(w * 0.26f, h * 0.21f),
-                    size = Size(w * 0.48f, h * 0.43f),
-                    cornerRadius = CornerRadius(60f, 60f)
-                )
-
-                // Eyes (Square-ish with blinking)
-                val eyeHeight = 0.12f * h * blinkScale
-                val eyeTopOffset = (0.12f * h - eyeHeight) / 2
-
-                if (hasSunglasses) {
-                    drawRect(color = Color.Black, topLeft = Offset(w * 0.28f, h * 0.3f), size = Size(w * 0.44f, h * 0.1f))
-                } else {
+            when (petType) {
+                0 -> {
+                    // PET TYPE 0: EMO STYLE
+                    // Feet
                     drawRoundRect(
-                        color = eyeColor,
-                        topLeft = Offset(w * 0.33f, h * 0.32f + eyeTopOffset),
-                        size = Size(w * 0.12f, eyeHeight),
-                        cornerRadius = CornerRadius(15f, 15f)
+                        color = Color(0xFF424242),
+                        topLeft = Offset(w * 0.25f, h * 0.75f - totalYOffset + jumpOffset.value * 0.2f),
+                        size = Size(w * 0.22f, h * 0.18f),
+                        cornerRadius = CornerRadius(20f, 20f)
                     )
                     drawRoundRect(
-                        color = eyeColor,
-                        topLeft = Offset(w * 0.55f, h * 0.32f + eyeTopOffset),
-                        size = Size(w * 0.12f, eyeHeight),
-                        cornerRadius = CornerRadius(15f, 15f)
+                        color = Color(0xFF424242),
+                        topLeft = Offset(w * 0.53f, h * 0.75f - totalYOffset + jumpOffset.value * 0.2f),
+                        size = Size(w * 0.22f, h * 0.18f),
+                        cornerRadius = CornerRadius(20f, 20f)
                     )
-                }
-
-                // Mouth
-                val mouthPath = Path().apply {
-                    val mouthY = h * 0.52f
-                    moveTo(w * 0.42f, mouthY)
-                    if (isSmiling) quadraticTo(w * 0.5f, mouthY + h * 0.04f, w * 0.58f, mouthY)
-                    else quadraticTo(w * 0.5f, mouthY - h * 0.04f, w * 0.58f, mouthY)
-                }
-                drawPath(path = mouthPath, color = eyeColor, style = Stroke(width = 6f, cap = StrokeCap.Round))
-
-            } else {
-                // PET TYPE 1: EILIK STYLE
-                // Body (Egg)
-                drawOval(color = mainColor, topLeft = Offset(w * 0.25f, h * 0.45f), size = Size(w * 0.5f, h * 0.5f))
-
-                // Collar
-                val collarPath = Path().apply {
-                    moveTo(w * 0.35f, h * 0.45f)
-                    quadraticTo(w * 0.5f, h * 0.65f, w * 0.65f, h * 0.45f)
-                    close()
-                }
-                drawPath(path = collarPath, color = eyeColor) // Uses Eye Color as accent
-
-                // Arms
-                withTransform({ rotate(degrees = armRotation, pivot = Offset(w * 0.35f, h * 0.55f)) }) {
-                    val armPath = Path().apply {
-                        moveTo(w * 0.35f, h * 0.55f)
-                        cubicTo(w * 0.15f, h * 0.55f, w * 0.1f, h * 0.45f, w * 0.18f, h * 0.35f)
+                    // Legs
+                    drawRect(color = mainColor, topLeft = Offset(w * 0.32f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
+                    drawRect(color = mainColor, topLeft = Offset(w * 0.6f, h * 0.65f), size = Size(w * 0.08f, h * 0.12f))
+                    // Body
+                    drawRoundRect(
+                        color = mainColor,
+                        topLeft = Offset(w * 0.2f, h * 0.15f),
+                        size = Size(w * 0.6f, h * 0.55f),
+                        cornerRadius = CornerRadius(80f, 80f)
+                    )
+                    // Face Frame
+                    drawRoundRect(
+                        color = Color(0xFFE0E0E0),
+                        topLeft = Offset(w * 0.24f, h * 0.19f),
+                        size = Size(w * 0.52f, h * 0.47f),
+                        cornerRadius = CornerRadius(70f, 70f)
+                    )
+                    // Screen
+                    drawRoundRect(
+                        color = screenBlack,
+                        topLeft = Offset(w * 0.26f, h * 0.21f),
+                        size = Size(w * 0.48f, h * 0.43f),
+                        cornerRadius = CornerRadius(60f, 60f)
+                    )
+                    // Eyes
+                    val eyeHeight = 0.12f * h * blinkScale
+                    val eyeTopOffset = (0.12f * h - eyeHeight) / 2
+                    if (hasSunglasses) {
+                        drawRect(color = Color.Black, topLeft = Offset(w * 0.28f, h * 0.3f), size = Size(w * 0.44f, h * 0.1f))
+                    } else {
+                        drawRoundRect(color = eyeColor, topLeft = Offset(w * 0.33f, h * 0.32f + eyeTopOffset), size = Size(w * 0.12f, eyeHeight), cornerRadius = CornerRadius(15f, 15f))
+                        drawRoundRect(color = eyeColor, topLeft = Offset(w * 0.55f, h * 0.32f + eyeTopOffset), size = Size(w * 0.12f, eyeHeight), cornerRadius = CornerRadius(15f, 15f))
                     }
-                    drawPath(path = armPath, color = mainColor, style = Stroke(width = w * 0.12f, cap = StrokeCap.Round))
-                    drawPath(path = armPath, color = eyeColor, style = Stroke(width = w * 0.06f, cap = StrokeCap.Round))
-                }
-                withTransform({ rotate(degrees = -armRotation, pivot = Offset(w * 0.65f, h * 0.55f)) }) {
-                    val armPath = Path().apply {
-                        moveTo(w * 0.65f, h * 0.55f)
-                        cubicTo(w * 0.85f, h * 0.55f, w * 0.9f, h * 0.45f, w * 0.82f, h * 0.35f)
+                    // Mouth
+                    val mouthPath = Path().apply {
+                        val mouthY = h * 0.52f
+                        moveTo(w * 0.42f, mouthY)
+                        if (isSmiling) quadraticTo(w * 0.5f, mouthY + h * 0.04f, w * 0.58f, mouthY)
+                        else quadraticTo(w * 0.5f, mouthY - h * 0.04f, w * 0.58f, mouthY)
                     }
-                    drawPath(path = armPath, color = mainColor, style = Stroke(width = w * 0.12f, cap = StrokeCap.Round))
-                    drawPath(path = armPath, color = eyeColor, style = Stroke(width = w * 0.06f, cap = StrokeCap.Round))
+                    drawPath(path = mouthPath, color = eyeColor, style = Stroke(width = 6f, cap = StrokeCap.Round))
                 }
-
-                // Head
-                drawOval(color = mainColor, topLeft = Offset(w * 0.15f, h * 0.1f), size = Size(w * 0.7f, h * 0.42f))
-
-                // Screen
-                drawRoundRect(
-                    color = screenBlack,
-                    topLeft = Offset(w * 0.28f, h * 0.18f),
-                    size = Size(w * 0.44f, h * 0.26f),
-                    cornerRadius = CornerRadius(60f, 60f)
-                )
-
-                // Eyes
-                val eyeHeight = 0.1f * h * blinkScale
-                val eyeTopOffset = (0.1f * h - eyeHeight) / 2
-                if (hasSunglasses) {
-                    drawRect(color = Color.Black, topLeft = Offset(w * 0.28f, h * 0.23f), size = Size(w * 0.44f, h * 0.08f))
-                } else {
-                    drawArc(color = faceAccent, startAngle = 180f, sweepAngle = 180f, useCenter = false, topLeft = Offset(w * 0.35f, h * 0.23f + eyeTopOffset), size = Size(w * 0.12f, eyeHeight))
-                    drawArc(color = faceAccent, startAngle = 180f, sweepAngle = 180f, useCenter = false, topLeft = Offset(w * 0.53f, h * 0.23f + eyeTopOffset), size = Size(w * 0.12f, eyeHeight))
+                1 -> {
+                    // PET TYPE 1: EILIK STYLE
+                    drawOval(color = mainColor, topLeft = Offset(w * 0.25f, h * 0.45f), size = Size(w * 0.5f, h * 0.5f))
+                    val collarPath = Path().apply {
+                        moveTo(w * 0.35f, h * 0.45f)
+                        quadraticTo(w * 0.5f, h * 0.65f, w * 0.65f, h * 0.45f)
+                        close()
+                    }
+                    drawPath(path = collarPath, color = eyeColor)
+                    withTransform({ rotate(degrees = armRotation, pivot = Offset(w * 0.35f, h * 0.55f)) }) {
+                        val armPath = Path().apply {
+                            moveTo(w * 0.35f, h * 0.55f)
+                            cubicTo(w * 0.15f, h * 0.55f, w * 0.1f, h * 0.45f, w * 0.18f, h * 0.35f)
+                        }
+                        drawPath(path = armPath, color = mainColor, style = Stroke(width = w * 0.12f, cap = StrokeCap.Round))
+                        drawPath(path = armPath, color = eyeColor, style = Stroke(width = w * 0.06f, cap = StrokeCap.Round))
+                    }
+                    withTransform({ rotate(degrees = -armRotation, pivot = Offset(w * 0.65f, h * 0.55f)) }) {
+                        val armPath = Path().apply {
+                            moveTo(w * 0.65f, h * 0.55f)
+                            cubicTo(w * 0.85f, h * 0.55f, w * 0.9f, h * 0.45f, w * 0.82f, h * 0.35f)
+                        }
+                        drawPath(path = armPath, color = mainColor, style = Stroke(width = w * 0.12f, cap = StrokeCap.Round))
+                        drawPath(path = armPath, color = eyeColor, style = Stroke(width = w * 0.06f, cap = StrokeCap.Round))
+                    }
+                    drawOval(color = mainColor, topLeft = Offset(w * 0.15f, h * 0.1f), size = Size(w * 0.7f, h * 0.42f))
+                    drawRoundRect(color = screenBlack, topLeft = Offset(w * 0.28f, h * 0.18f), size = Size(w * 0.44f, h * 0.26f), cornerRadius = CornerRadius(60f, 60f))
+                    val eyeHeight = 0.1f * h * blinkScale
+                    val eyeTopOffset = (0.1f * h - eyeHeight) / 2
+                    if (hasSunglasses) {
+                        drawRect(color = Color.Black, topLeft = Offset(w * 0.28f, h * 0.23f), size = Size(w * 0.44f, h * 0.08f))
+                    } else {
+                        drawArc(color = faceAccent, startAngle = 180f, sweepAngle = 180f, useCenter = false, topLeft = Offset(w * 0.35f, h * 0.23f + eyeTopOffset), size = Size(w * 0.12f, eyeHeight))
+                        drawArc(color = faceAccent, startAngle = 180f, sweepAngle = 180f, useCenter = false, topLeft = Offset(w * 0.53f, h * 0.23f + eyeTopOffset), size = Size(w * 0.12f, eyeHeight))
+                    }
+                    val mouthPath = Path().apply {
+                        val mouthY = h * 0.35f
+                        moveTo(w * 0.45f, mouthY)
+                        if (isSmiling) quadraticTo(w * 0.5f, mouthY + h * 0.03f, w * 0.55f, mouthY)
+                        else quadraticTo(w * 0.5f, mouthY - h * 0.03f, w * 0.55f, mouthY)
+                    }
+                    drawPath(path = mouthPath, color = faceAccent, style = Stroke(width = 6f, cap = StrokeCap.Round))
                 }
-
-                // Mouth
-                val mouthPath = Path().apply {
-                    val mouthY = h * 0.35f
-                    moveTo(w * 0.45f, mouthY)
-                    if (isSmiling) quadraticTo(w * 0.5f, mouthY + h * 0.03f, w * 0.55f, mouthY)
-                    else quadraticTo(w * 0.5f, mouthY - h * 0.03f, w * 0.55f, mouthY)
+                else -> {
+                    // PET TYPE 2: CUTEBOT (Round blue/white)
+                    val lightBlue = Color(0xFF81D4FA)
+                    val blush = Color(0xFFFFCDD2)
+                    // Arms
+                    withTransform({ rotate(degrees = armRotation * 0.3f, pivot = Offset(w * 0.35f, h * 0.6f)) }) {
+                        drawRoundRect(color = mainColor, topLeft = Offset(w * 0.28f, h * 0.6f), size = Size(w * 0.12f, h * 0.25f), cornerRadius = CornerRadius(w * 0.06f, w * 0.06f))
+                    }
+                    withTransform({ rotate(degrees = -armRotation * 0.3f, pivot = Offset(w * 0.65f, h * 0.6f)) }) {
+                        drawRoundRect(color = mainColor, topLeft = Offset(w * 0.6f, h * 0.6f), size = Size(w * 0.12f, h * 0.25f), cornerRadius = CornerRadius(w * 0.06f, w * 0.06f))
+                    }
+                    // Body
+                    drawOval(color = mainColor, topLeft = Offset(w * 0.3f, h * 0.55f), size = Size(w * 0.4f, h * 0.35f))
+                    drawArc(color = lightBlue, startAngle = 0f, sweepAngle = 180f, useCenter = true, topLeft = Offset(w * 0.3f, h * 0.65f), size = Size(w * 0.4f, h * 0.2f))
+                    // Head Accents
+                    drawOval(color = lightBlue, topLeft = Offset(w * 0.18f, h * 0.25f), size = Size(w * 0.12f, h * 0.25f))
+                    drawOval(color = lightBlue, topLeft = Offset(w * 0.7f, h * 0.25f), size = Size(w * 0.12f, h * 0.25f))
+                    // Head
+                    drawOval(color = mainColor, topLeft = Offset(w * 0.22f, h * 0.1f), size = Size(w * 0.56f, h * 0.5f))
+                    drawArc(color = lightBlue, startAngle = 180f, sweepAngle = 180f, useCenter = true, topLeft = Offset(w * 0.35f, h * 0.1f), size = Size(w * 0.3f, h * 0.15f))
+                    // Face
+                    drawCircle(color = blush, center = Offset(w * 0.32f, h * 0.45f), radius = w * 0.03f)
+                    drawCircle(color = blush, center = Offset(w * 0.68f, h * 0.45f), radius = w * 0.03f)
+                    val eyeSize = 0.07f * h * blinkScale
+                    drawCircle(color = screenBlack, center = Offset(w * 0.4f, h * 0.38f), radius = eyeSize)
+                    drawCircle(color = screenBlack, center = Offset(w * 0.6f, h * 0.38f), radius = eyeSize)
+                    val mouthPath = Path().apply {
+                        moveTo(w * 0.45f, h * 0.48f)
+                        if (isSmiling) quadraticTo(w * 0.5f, h * 0.52f, w * 0.55f, h * 0.48f)
+                        else quadraticTo(w * 0.5f, h * 0.44f, w * 0.55f, h * 0.48f)
+                    }
+                    drawPath(path = mouthPath, color = Color.Black, style = Stroke(width = 4f, cap = StrokeCap.Round))
                 }
-                drawPath(path = mouthPath, color = faceAccent, style = Stroke(width = 6f, cap = StrokeCap.Round))
             }
 
             // Shared Accessories
-            // Clothes
-            if (hasClothes) {
-                drawRoundRect(
-                    color = clothesColor,
-                    topLeft = Offset(w * 0.25f, h * 0.55f),
-                    size = Size(w * 0.5f, h * 0.2f),
-                    cornerRadius = CornerRadius(20f, 20f)
-                )
+            if (hasClothes && petType != 2) { // Skip clothes for CuteBot for now as it has its own blue stripe
+                drawRoundRect(color = clothesColor, topLeft = Offset(w * 0.25f, h * 0.55f), size = Size(w * 0.5f, h * 0.2f), cornerRadius = CornerRadius(20f, 20f))
             }
 
-            // Headphones
-            drawArc(
-                color = headphoneColor,
-                startAngle = 180f,
-                sweepAngle = 180f,
-                useCenter = false,
-                topLeft = Offset(w * 0.2f, h * 0.1f),
-                size = Size(w * 0.6f, h * 0.2f),
-                style = Stroke(width = 12f)
-            )
-            drawRoundRect(color = headphoneColor, topLeft = Offset(w * 0.15f, h * 0.3f), size = Size(w * 0.1f, h * 0.2f), cornerRadius = CornerRadius(30f, 30f))
-            drawRoundRect(color = headphoneColor, topLeft = Offset(w * 0.75f, h * 0.3f), size = Size(w * 0.1f, h * 0.2f), cornerRadius = CornerRadius(30f, 30f))
+            if (petType != 2) { // Headphones for Emo and Eilik
+                drawArc(color = headphoneColor, startAngle = 180f, sweepAngle = 180f, useCenter = false, topLeft = Offset(w * 0.2f, h * 0.1f), size = Size(w * 0.6f, h * 0.2f), style = Stroke(width = 12f))
+                drawRoundRect(color = headphoneColor, topLeft = Offset(w * 0.15f, h * 0.3f), size = Size(w * 0.1f, h * 0.2f), cornerRadius = CornerRadius(30f, 30f))
+                drawRoundRect(color = headphoneColor, topLeft = Offset(w * 0.75f, h * 0.3f), size = Size(w * 0.1f, h * 0.2f), cornerRadius = CornerRadius(30f, 30f))
+            }
 
             // Song Visualization
             if (isSinging) {
