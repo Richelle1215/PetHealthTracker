@@ -41,7 +41,7 @@ fun RobotPet(
     var isSmiling by remember { mutableStateOf(true) }
     var isSinging by remember { mutableStateOf(false) }
 
-    // Blinking animation
+    // Blinking  animation
     val blinkScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1f,
