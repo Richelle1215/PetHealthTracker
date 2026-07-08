@@ -57,7 +57,7 @@ fun RobotPet(
         label = "blink"
     )
 
-    // Arm swaying animation (For Eilik/CuteBot)
+    // Arm swaying animation (For CuteBot)
     val armRotation by infiniteTransition.animateFloat(
         initialValue = -8f,
         targetValue = 8f,
