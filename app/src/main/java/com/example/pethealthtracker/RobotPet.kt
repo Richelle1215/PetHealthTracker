@@ -235,7 +235,7 @@ fun RobotPet(
                     drawPath(path = mouthPath, color = faceAccent, style = Stroke(width = 6f, cap = StrokeCap.Round))
                 }
                 else -> {
-                    // PET TYPE 2: CUTEBOT (Round blue/white)
+                    // PET TYPE 2
                     val lightBlue = Color(0xFF81D4FA)
                     val blush = Color(0xFFFFCDD2)
                     // Arms
