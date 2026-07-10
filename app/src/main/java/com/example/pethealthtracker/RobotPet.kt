@@ -166,7 +166,7 @@ fun RobotPet(
                         size = Size(w * 0.52f, h * 0.47f),
                         cornerRadius = CornerRadius(70f, 70f)
                     )
-                    //Screen
+                    // Screen
                     drawRoundRect(
                         color = screenBlack,
                         topLeft = Offset(w * 0.26f, h * 0.21f),
