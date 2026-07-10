@@ -31,6 +31,7 @@ fun HomeScreen(navController: NavController, viewModel: PetViewModel) {
             )
         }
 
+
         // Top Left Quick Actions Games and Closet
         Column(
             modifier = Modifier
