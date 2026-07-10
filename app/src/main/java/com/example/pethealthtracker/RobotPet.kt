@@ -173,7 +173,7 @@ fun RobotPet(
                         size = Size(w * 0.48f, h * 0.43f),
                         cornerRadius = CornerRadius(60f, 60f)
                     )
-                    // Eyes
+                    // Ey
                     val eyeHeight = 0.12f * h * blinkScale
                     val eyeTopOffset = (0.12f * h - eyeHeight) / 2
                     if (hasSunglasses) {
