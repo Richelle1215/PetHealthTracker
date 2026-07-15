@@ -32,7 +32,7 @@ fun HomeScreen(navController: NavController, viewModel: PetViewModel) {
         }
 
 
-        // Top Left Quick Actions Games and Closet
+        // Top Left Quick Actions Games
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
