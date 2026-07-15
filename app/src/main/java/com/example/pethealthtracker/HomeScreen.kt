@@ -73,7 +73,7 @@ fun HomeScreen(navController: NavController, viewModel: PetViewModel) {
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
-            // Display the selected pet only
+            // Display the selected pet
             RobotPet(
                 modifier = Modifier.size(250.dp),
                 petType = viewModel.petType,
